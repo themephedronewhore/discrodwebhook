@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Discord Webhook Отправитель</title>
+    <title>Discord Message Creator</title>
     <style>
         :root {
             --primary: #5865F2;
@@ -225,16 +225,15 @@
             margin-bottom: 0;
         }
         
-        .button-group {
-            display: flex;
-            gap: 10px;
-            margin-bottom: 15px;
-        }
-        
         .button-input {
             display: flex;
             gap: 10px;
             margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            align-items: center;
         }
         
         .button-input input {
@@ -595,6 +594,142 @@
             font-style: italic;
         }
         
+        /* Стили для Embed */
+        .embed-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .embed-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .field-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .field-input input {
+            flex: 1;
+        }
+        
+        .color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+        
+        .color-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .color-input-container input {
+            flex: 1;
+        }
+        
+        .embed-preview {
+            background: #2F3136;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #5865F2;
+        }
+        
+        .embed-preview-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .embed-preview-description {
+            color: #DCDDDE;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .embed-preview-field {
+            margin-bottom: 8px;
+        }
+        
+        .embed-preview-field-name {
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .embed-preview-field-value {
+            color: #DCDDDE;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+        
+        .embed-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+        
+        .embed-toggle input {
+            width: auto;
+        }
+        
+        .embed-add-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: auto;
+        }
+        
+        .embed-add-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .embed-add-button:active {
+            transform: translateY(0);
+        }
+        
+        .embed-add-icon {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1;
+        }
+        
+        .embed-add-text {
+            font-weight: 500;
+        }
+        
         @keyframes fadeIn {
             from { opacity: 0; }
             to { opacity: 1; }
@@ -649,6 +784,14 @@
             .forum-mode-selector {
                 flex-direction: column;
             }
+            
+            .button-input {
+                flex-direction: column;
+            }
+            
+            .field-input {
+                flex-direction: column;
+            }
         }
     </style>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -656,12 +799,18 @@
 <body>
     <div class="container">
         <header>
-            <h1><i class="fab fa-discord"></i> Discord Webhook Отправитель</h1>
-            <p class="subtitle">Расширенный инструмент для отправки сообщений на ваш Discord сервер</p>
+            <h1><i class="fab fa-discord"></i> Discord Message Creator</h1>
+            <p class="subtitle">Создавайте красивые сообщения для Discord</p>
         </header>
         
         <div class="card">
-            <h2><i class="fas fa-paper-plane"></i> Отправить сообщение</h2>
+            <h2><i class="fas fa-paper-plane"></i> Создать сообщение</h2>
+            
+            <!-- Кнопка добавления эмбеда -->
+            <button class="embed-add-button" id="addEmbedBtn">
+                <div class="embed-add-icon">+</div>
+                <span class="embed-add-text">Добавить Embed</span>
+            </button>
             
             <div class="webhook-manager">
                 <div class="form-group">
@@ -675,7 +824,7 @@
                         <!-- Сохраненные вебхуки появятся здесь -->
                     </div>
                     <button type="button" class="add-btn" id="saveWebhookBtn" style="margin-top: 10px;">
-                        <i class="fas fa-plus"></i> Добавить вебхук
+                        <i class="fas fa-plus"></i> Сохранить вебхук
                     </button>
                 </div>
             </div>
@@ -767,7 +916,56 @@
                 
                 <div class="form-group">
                     <label for="message"><i class="fas fa-comment"></i> Сообщение:</label>
-                    <textarea id="message" placeholder="Введите ваше сообщение..." required></textarea>
+                    <textarea id="message" placeholder="Введите ваше сообщение..."></textarea>
+                </div>
+                
+                <!-- Секция Embed -->
+                <div class="embed-section">
+                    <div class="embed-toggle">
+                        <input type="checkbox" id="enableEmbed">
+                        <label for="enableEmbed"><strong>Добавить Embed</strong></label>
+                    </div>
+                    
+                    <div id="embedContent" style="display: none;">
+                        <div class="form-group">
+                            <label for="embedTitle"><i class="fas fa-heading"></i> Заголовок Embed:</label>
+                            <input type="text" id="embedTitle" placeholder="Введите заголовок">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="embedDescription"><i class="fas fa-align-left"></i> Описание Embed:</label>
+                            <textarea id="embedDescription" placeholder="Введите описание" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="embedColor"><i class="fas fa-palette"></i> Цвет Embed:</label>
+                            <div class="color-input-container">
+                                <input type="text" id="embedColor" placeholder="#5865F2" value="#5865F2">
+                                <div class="color-preview" id="colorPreview" style="background-color: #5865F2;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-list"></i> Поля Embed:</label>
+                            <div id="fieldsContainer">
+                                <!-- Поля будут добавляться здесь -->
+                            </div>
+                            <button type="button" class="add-btn" id="addFieldBtn">
+                                <i class="fas fa-plus"></i> Добавить поле
+                            </button>
+                        </div>
+                        
+                        <div class="embed-preview" id="embedPreview">
+                            <div class="embed-preview-title" id="previewTitle">Заголовок Embed</div>
+                            <div class="embed-preview-description" id="previewDescription">Описание embed будет отображаться здесь</div>
+                            <div id="previewFields">
+                                <div class="embed-preview-field">
+                                    <span class="embed-preview-field-name">Пример поля:</span>
+                                    <span class="embed-preview-field-value">Значение поля</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
                 
                 <div class="form-group">
@@ -782,16 +980,6 @@
                     <label for="imageUrl"><i class="fas fa-link"></i> URL изображения:</label>
                     <input type="url" id="imageUrl" placeholder="https://example.com/image.png">
                     <img id="imagePreview" class="image-preview" alt="Предпросмотр изображения">
-                </div>
-                
-                <div class="form-group">
-                    <label><i class="fas fa-link"></i> Кнопки-ссылки:</label>
-                    <div id="buttonsContainer">
-                        <!-- Кнопки будут добавляться здесь -->
-                    </div>
-                    <button type="button" class="add-btn" id="addButton">
-                        <i class="fas fa-plus"></i> Добавить кнопку
-                    </button>
                 </div>
                 
                 <button type="submit">
@@ -813,11 +1001,11 @@
         </div>
     </div>
     
-    <!-- Модальное окно для добавления вебхука -->
+    <!-- Модальные окна -->
     <div class="modal" id="webhookModal">
         <div class="modal-content">
             <div class="modal-header">
-                <h3 class="modal-title"><i class="fas fa-plus"></i> Добавить вебхук</h3>
+                <h3 class="modal-title"><i class="fas fa-plus"></i> Сохранить вебхук</h3>
                 <button class="close-modal" id="closeModal">&times;</button>
             </div>
             
@@ -847,7 +1035,6 @@
         </div>
     </div>
     
-    <!-- Модальное окно для подтверждения удаления вебхука -->
     <div class="modal" id="deleteConfirmModal">
         <div class="modal-content confirm-modal-content">
             <div class="confirm-icon">
@@ -868,7 +1055,6 @@
         </div>
     </div>
     
-    <!-- Модальное окно для подтверждения очистки истории -->
     <div class="modal" id="clearHistoryConfirmModal">
         <div class="modal-content confirm-modal-content">
             <div class="confirm-icon">
@@ -899,14 +1085,27 @@
             const responseMessage = document.getElementById('responseMessage');
             const historyContainer = document.getElementById('historyContainer');
             const clearHistoryBtn = document.getElementById('clearHistory');
-            const addButtonBtn = document.getElementById('addButton');
-            const buttonsContainer = document.getElementById('buttonsContainer');
             const imageUrlInput = document.getElementById('imageUrl');
             const imagePreview = document.getElementById('imagePreview');
             const saveWebhookBtn = document.getElementById('saveWebhookBtn');
             const savedWebhooksContainer = document.getElementById('savedWebhooks');
             const webhookUrlInput = document.getElementById('webhookUrl');
             const usernameInput = document.getElementById('username');
+            const addEmbedBtn = document.getElementById('addEmbedBtn');
+            
+            // Элементы Embed
+            const enableEmbed = document.getElementById('enableEmbed');
+            const embedContent = document.getElementById('embedContent');
+            const embedTitle = document.getElementById('embedTitle');
+            const embedDescription = document.getElementById('embedDescription');
+            const embedColor = document.getElementById('embedColor');
+            const colorPreview = document.getElementById('colorPreview');
+            const addFieldBtn = document.getElementById('addFieldBtn');
+            const fieldsContainer = document.getElementById('fieldsContainer');
+            const embedPreview = document.getElementById('embedPreview');
+            const previewTitle = document.getElementById('previewTitle');
+            const previewDescription = document.getElementById('previewDescription');
+            const previewFields = document.getElementById('previewFields');
             
             // Элементы модальных окон
             const webhookModal = document.getElementById('webhookModal');
@@ -939,13 +1138,104 @@
             const threadNameGroup = document.getElementById('threadNameGroup');
             const threadNameInput = document.getElementById('threadName');
 
-            let buttonCount = 0;
+            let fieldCount = 0;
             let currentWebhookId = null;
             let webhookToDeleteId = null;
             
             // Загрузка истории и сохраненных вебхуков
             loadHistory();
             loadSavedWebhooks();
+            
+            // Кнопка добавления эмбеда
+            addEmbedBtn.addEventListener('click', function() {
+                enableEmbed.checked = true;
+                embedContent.style.display = 'block';
+                updateEmbedPreview();
+            });
+            
+            // Переключение Embed
+            enableEmbed.addEventListener('change', function() {
+                embedContent.style.display = this.checked ? 'block' : 'none';
+                updateEmbedPreview();
+            });
+            
+            // Обновление цвета Embed
+            embedColor.addEventListener('input', function() {
+                const color = this.value || '#5865F2';
+                colorPreview.style.backgroundColor = color;
+                embedPreview.style.borderLeftColor = color;
+                updateEmbedPreview();
+            });
+            
+            // Обновление предпросмотра Embed
+            function updateEmbedPreview() {
+                previewTitle.textContent = embedTitle.value || 'Заголовок Embed';
+                previewDescription.textContent = embedDescription.value || 'Описание embed будет отображаться здесь';
+                
+                // Обновляем поля
+                previewFields.innerHTML = '';
+                const fieldInputs = fieldsContainer.querySelectorAll('.field-input');
+                fieldInputs.forEach(fieldDiv => {
+                    const name = fieldDiv.querySelector('.field-name').value;
+                    const value = fieldDiv.querySelector('.field-value').value;
+                    
+                    if (name || value) {
+                        const fieldElement = document.createElement('div');
+                        fieldElement.className = 'embed-preview-field';
+                        fieldElement.innerHTML = `
+                            <span class="embed-preview-field-name">${name || 'Имя поля'}:</span>
+                            <span class="embed-preview-field-value">${value || 'Значение поля'}</span>
+                        `;
+                        previewFields.appendChild(fieldElement);
+                    }
+                });
+                
+                // Если нет полей, показываем пример
+                if (previewFields.children.length === 0) {
+                    previewFields.innerHTML = `
+                        <div class="embed-preview-field">
+                            <span class="embed-preview-field-name">Пример поля:</span>
+                            <span class="embed-preview-field-value">Значение поля</span>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Добавление поля Embed
+            addFieldBtn.addEventListener('click', function() {
+                if (fieldCount >= 25) {
+                    alert('Максимум 25 полей можно добавить');
+                    return;
+                }
+                
+                fieldCount++;
+                const fieldDiv = document.createElement('div');
+                fieldDiv.className = 'field-input';
+                fieldDiv.innerHTML = `
+                    <input type="text" class="field-name" placeholder="Имя поля" style="flex: 1;">
+                    <input type="text" class="field-value" placeholder="Значение поля" style="flex: 2;">
+                    <button type="button" class="remove-btn"><i class="fas fa-times"></i></button>
+                `;
+                
+                fieldsContainer.appendChild(fieldDiv);
+                
+                // Обновление предпросмотра при изменении полей
+                fieldDiv.querySelector('.field-name').addEventListener('input', updateEmbedPreview);
+                fieldDiv.querySelector('.field-value').addEventListener('input', updateEmbedPreview);
+                
+                // Удаление поля
+                fieldDiv.querySelector('.remove-btn').addEventListener('click', function() {
+                    fieldsContainer.removeChild(fieldDiv);
+                    fieldCount--;
+                    updateEmbedPreview();
+                });
+                
+                updateEmbedPreview();
+            });
+            
+            // Обновление предпросмотра при изменении заголовка и описания
+            embedTitle.addEventListener('input', updateEmbedPreview);
+            embedDescription.addEventListener('input', updateEmbedPreview);
             
             // Переключение между режимами Чат/Форум
             modeChatRadio.addEventListener('change', function() {
@@ -1063,25 +1353,6 @@
                 }
             });
             
-            // Добавление кнопки
-            addButtonBtn.addEventListener('click', function() {
-                buttonCount++;
-                const buttonDiv = document.createElement('div');
-                buttonDiv.className = 'button-input';
-                buttonDiv.innerHTML = `
-                    <input type="text" class="button-label" placeholder="Текст кнопки">
-                    <input type="url" class="button-url" placeholder="URL ссылки">
-                    <button type="button" class="remove-btn"><i class="fas fa-times"></i></button>
-                `;
-                
-                buttonsContainer.appendChild(buttonDiv);
-                
-                // Удаление кнопки
-                buttonDiv.querySelector('.remove-btn').addEventListener('click', function() {
-                    buttonsContainer.removeChild(buttonDiv);
-                });
-            });
-            
             // Отправка формы
             form.addEventListener('submit', function(e) {
                 e.preventDefault();
@@ -1120,7 +1391,6 @@
                 };
                 
                 // Добавляем имя пользователя только если оно указано
-                // Если не указано - будет использовано стандартное имя вебхука
                 if (username) {
                     payload.username = username;
                 }
@@ -1130,44 +1400,55 @@
                     payload.avatar_url = avatarUrl;
                 }
                 
-                // Добавляем изображение, если указано
-                if (imageUrl) {
-                    if (imagePosition === 'top') {
-                        if (!payload.embeds) payload.embeds = [];
-                        payload.embeds.push({
-                            image: { url: imageUrl }
+                // Добавляем Embed если включен
+                if (enableEmbed.checked) {
+                    const embedTitleValue = embedTitle.value.trim();
+                    const embedDescriptionValue = embedDescription.value.trim();
+                    const embedColorValue = embedColor.value.trim();
+                    
+                    if (embedTitleValue || embedDescriptionValue) {
+                        payload.embeds = [{
+                            title: embedTitleValue || undefined,
+                            description: embedDescriptionValue || undefined,
+                            color: embedColorValue ? parseInt(embedColorValue.replace('#', ''), 16) : undefined,
+                            fields: []
+                        }];
+                        
+                        // Добавляем поля
+                        const fieldInputs = fieldsContainer.querySelectorAll('.field-input');
+                        fieldInputs.forEach(fieldDiv => {
+                            const name = fieldDiv.querySelector('.field-name').value.trim();
+                            const value = fieldDiv.querySelector('.field-value').value.trim();
+                            
+                            if (name && value) {
+                                payload.embeds[0].fields.push({
+                                    name: name,
+                                    value: value,
+                                    inline: false
+                                });
+                            }
                         });
-                    } else {
-                        payload.content = message + `\n${imageUrl}`;
                     }
                 }
                 
-                // Добавляем кнопки, если есть
-                const buttonInputs = buttonsContainer.querySelectorAll('.button-input');
-                if (buttonInputs.length > 0) {
+                // Добавляем изображение, если указано
+                if (imageUrl) {
                     if (!payload.embeds) payload.embeds = [];
                     
-                    const embed = {
-                        title: "Ссылки",
-                        color: 0x5865F2,
-                        fields: []
-                    };
-                    
-                    buttonInputs.forEach(buttonDiv => {
-                        const label = buttonDiv.querySelector('.button-label').value;
-                        const url = buttonDiv.querySelector('.button-url').value;
-                        
-                        if (label && url) {
-                            embed.fields.push({
-                                name: label,
-                                value: `[Перейти](${url})`,
-                                inline: true
+                    if (imagePosition === 'top') {
+                        // Добавляем embed с изображением
+                        payload.embeds.unshift({
+                            image: { url: imageUrl }
+                        });
+                    } else {
+                        // Добавляем изображение в конец
+                        if (payload.embeds.length > 0) {
+                            payload.embeds[payload.embeds.length - 1].image = { url: imageUrl };
+                        } else {
+                            payload.embeds.push({
+                                image: { url: imageUrl }
                             });
                         }
-                    });
-                    
-                    if (embed.fields.length > 0) {
-                        payload.embeds.push(embed);
                     }
                 }
                 
@@ -1184,7 +1465,6 @@
                     else if (forumModeType === 'new' && threadName) {
                         payload.thread_name = threadName;
                     }
-                    // Если не выбран конкретный режим, отправляем в основную ветку форума
                 }
                 
                 // Показываем индикатор загрузки и отправляем запрос
@@ -1213,6 +1493,10 @@
                             }
                         }
                         
+                        if (enableEmbed.checked) {
+                            successMessage += ' (с Embed)';
+                        }
+                        
                         // Показываем какое имя использовалось
                         if (!username) {
                             successMessage += ' (использовано стандартное имя вебхука)';
@@ -1229,8 +1513,17 @@
                         document.getElementById('message').value = '';
                         document.getElementById('imageUrl').value = '';
                         imagePreview.style.display = 'none';
-                        buttonsContainer.innerHTML = '';
-                        buttonCount = 0;
+                        
+                        // Очищаем Embed поля
+                        enableEmbed.checked = false;
+                        embedContent.style.display = 'none';
+                        embedTitle.value = '';
+                        embedDescription.value = '';
+                        embedColor.value = '#5865F2';
+                        colorPreview.style.backgroundColor = '#5865F2';
+                        fieldsContainer.innerHTML = '';
+                        fieldCount = 0;
+                        updateEmbedPreview();
                         
                         // Сбрасываем настройки форума
                         if (forumModeType === 'new') {
@@ -1385,46 +1678,4 @@
                     history = history.slice(0, 10);
                 }
                 
-                localStorage.setItem('discordWebhookHistory', JSON.stringify(history));
-                loadHistory();
-            }
-            
-            // Функция загрузки истории
-            function loadHistory() {
-                const history = JSON.parse(localStorage.getItem('discordWebhookHistory') || '[]');
-                historyContainer.innerHTML = '';
-                
-                if (history.length === 0) {
-                    historyContainer.innerHTML = '<p style="text-align: center; color: var(--gray);">История отправки пуста</p>';
-                    return;
-                }
-                
-                history.forEach(item => {
-                    const historyElement = document.createElement('div');
-                    historyElement.className = 'history-item';
-                    historyElement.innerHTML = `
-                        <div class="history-header">
-                            <span class="history-username">${escapeHtml(item.username)}</span>
-                            <span class="history-date">${item.date} ${item.forumMode ? '(Форум)' : ''}</span>
-                        </div>
-                        <div class="history-message">${escapeHtml(item.message)}</div>
-                    `;
-                    historyContainer.appendChild(historyElement);
-                });
-            }
-            
-            // Функция очистки истории (теперь с модальным окном подтверждения)
-            clearHistoryBtn.addEventListener('click', function() {
-                clearHistoryConfirmModal.style.display = 'flex';
-            });
-            
-            // Функция экранирования HTML
-            function escapeHtml(text) {
-                const div = document.createElement('div');
-                div.textContent = text;
-                return div.innerHTML;
-            }
-        });
-    </script>
-</body>
-</html>
+ 
