@@ -1,0 +1,1723 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Discord Message Creator</title>
+    <style>
+        :root {
+            --primary: #5865F2;
+            --primary-dark: #4752C4;
+            --dark: #2C2F33;
+            --darker: #23272A;
+            --light: #FFFFFF;
+            --gray: #99AAB5;
+            --success: #57F287;
+            --success-dark: #46c46c;
+            --error: #ED4245;
+        }
+        
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background: linear-gradient(135deg, var(--dark), var(--darker));
+            color: var(--light);
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        
+        .container {
+            max-width: 900px;
+            width: 100%;
+            margin: 20px auto;
+        }
+        
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            background: linear-gradient(90deg, var(--primary), #FF73FA);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        
+        .subtitle {
+            color: var(--gray);
+            font-size: 1.1rem;
+        }
+        
+        .card {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 12px;
+            padding: 25px;
+            margin-bottom: 25px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        .card h2 {
+            margin-bottom: 15px;
+            color: var(--primary);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .card h2 i {
+            font-size: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: var(--gray);
+        }
+        
+        input, textarea, select {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--light);
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, textarea:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(88, 101, 242, 0.2);
+        }
+        
+        textarea {
+            min-height: 200px;
+            resize: vertical;
+        }
+        
+        button {
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 16px 30px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+        }
+        
+        button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        button:active {
+            transform: translateY(0);
+        }
+        
+        .message {
+            padding: 16px;
+            border-radius: 8px;
+            margin-top: 20px;
+            text-align: center;
+            display: none;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .success {
+            background: rgba(87, 242, 135, 0.2);
+            border: 1px solid var(--success);
+            color: var(--success);
+        }
+        
+        .error {
+            background: rgba(237, 66, 69, 0.2);
+            border: 1px solid var(--error);
+            color: var(--error);
+        }
+        
+        .footer {
+            text-align: center;
+            margin-top: 30px;
+            color: var(--gray);
+            font-size: 14px;
+            padding: 20px;
+        }
+        
+        .history {
+            margin-top: 30px;
+        }
+        
+        .history-item {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .history-header {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+        
+        .history-username {
+            font-weight: bold;
+            color: var(--primary);
+        }
+        
+        .history-date {
+            color: var(--gray);
+            font-size: 0.9rem;
+        }
+        
+        .history-message {
+            color: var(--light);
+        }
+        
+        .clear-history {
+            background: rgba(237, 66, 69, 0.2);
+            color: var(--error);
+            border: 1px solid var(--error);
+            padding: 10px 15px;
+            margin-top: 10px;
+        }
+        
+        .clear-history:hover {
+            background: rgba(237, 66, 69, 0.3);
+        }
+        
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .form-row .form-group {
+            flex: 1;
+            margin-bottom: 0;
+        }
+        
+        .button-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 3px solid var(--primary);
+            align-items: center;
+        }
+        
+        .button-input input {
+            flex: 1;
+        }
+        
+        .remove-btn {
+            background: var(--error);
+            padding: 10px;
+            width: auto;
+        }
+        
+        .remove-btn:hover {
+            background: #c03537;
+        }
+        
+        .add-btn {
+            background: var(--primary);
+            width: auto;
+            padding: 10px 15px;
+        }
+        
+        .add-btn:hover {
+            background: var(--primary-dark);
+        }
+        
+        .image-preview {
+            max-width: 200px;
+            max-height: 200px;
+            margin-top: 10px;
+            border-radius: 8px;
+            display: none;
+        }
+        
+        .webhook-manager {
+            margin-bottom: 20px;
+        }
+        
+        .saved-webhooks {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        .webhook-item {
+            background: rgba(88, 101, 242, 0.2);
+            border: 1px solid var(--primary);
+            border-radius: 8px;
+            padding: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            flex: 1 1 calc(33.333% - 10px);
+            min-width: 200px;
+            overflow: hidden;
+        }
+        
+        .webhook-item:hover {
+            background: rgba(88, 101, 242, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .webhook-item.active {
+            background: var(--primary);
+        }
+        
+        .webhook-name {
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        
+        .webhook-channel {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-bottom: 5px;
+        }
+        
+        .webhook-date {
+            font-size: 0.7rem;
+            color: var(--gray);
+            opacity: 0.7;
+        }
+        
+        .webhook-actions {
+            position: absolute;
+            top: 0;
+            right: -50px;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            background: rgba(0, 0, 0, 0.7);
+            border-radius: 0 8px 8px 0;
+            padding: 0 10px;
+        }
+        
+        .webhook-item:hover .webhook-actions {
+            right: 0;
+        }
+        
+        .delete-webhook {
+            background: transparent;
+            border: none;
+            color: var(--error);
+            cursor: pointer;
+            padding: 8px;
+            border-radius: 4px;
+            transition: all 0.3s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .delete-webhook:hover {
+            background: rgba(237, 66, 69, 0.2);
+        }
+        
+        /* Модальные окна */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background: var(--darker);
+            border-radius: 12px;
+            padding: 30px;
+            width: 90%;
+            max-width: 500px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+        
+        .modal-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+        
+        .modal-title {
+            color: var(--primary);
+            font-size: 1.5rem;
+        }
+        
+        .close-modal {
+            background: transparent;
+            border: none;
+            color: var(--gray);
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 5px;
+        }
+        
+        .close-modal:hover {
+            color: var(--light);
+        }
+        
+        .modal-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+        
+        .modal-actions button {
+            flex: 1;
+        }
+        
+        .cancel-btn {
+            background: var(--gray);
+        }
+        
+        .cancel-btn:hover {
+            background: #7a8b95;
+        }
+        
+        .delete-confirm-btn {
+            background: var(--error);
+        }
+        
+        .delete-confirm-btn:hover {
+            background: #c03537;
+        }
+        
+        .confirm-modal-content {
+            text-align: center;
+        }
+        
+        .confirm-icon {
+            font-size: 3rem;
+            color: var(--error);
+            margin-bottom: 15px;
+        }
+        
+        .confirm-text {
+            margin-bottom: 20px;
+            font-size: 1.1rem;
+        }
+        
+        .webhook-name-to-delete {
+            color: var(--primary);
+            font-weight: bold;
+        }
+        
+        /* Стили для выбора режима */
+        .mode-selector {
+            background: rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .mode-toggle {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+        
+        .mode-option {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .mode-option input {
+            display: none;
+        }
+        
+        .mode-label {
+            display: block;
+            padding: 16px 20px;
+            background: rgba(88, 101, 242, 0.2);
+            border: 2px solid rgba(88, 101, 242, 0.3);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+        }
+        
+        .mode-option input:checked + .mode-label {
+            background: var(--primary);
+            border-color: var(--primary);
+            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.3);
+        }
+        
+        .mode-label:hover {
+            background: rgba(88, 101, 242, 0.3);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(88, 101, 242, 0.2);
+        }
+        
+        .mode-icon {
+            font-size: 1.5rem;
+            margin-bottom: 8px;
+        }
+        
+        .mode-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        
+        .mode-desc {
+            font-size: 0.8rem;
+            color: var(--gray);
+        }
+        
+        .forum-content {
+            display: none;
+            margin-top: 15px;
+            animation: slideDown 0.3s ease;
+        }
+        
+        .forum-content.active {
+            display: block;
+        }
+        
+        .forum-info {
+            background: rgba(88, 101, 242, 0.1);
+            border: 1px solid rgba(88, 101, 242, 0.3);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            font-size: 0.9rem;
+            color: var(--gray);
+        }
+        
+        .forum-mode-selector {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .forum-mode-option {
+            flex: 1;
+            text-align: center;
+        }
+        
+        .forum-mode-option input {
+            display: none;
+        }
+        
+        .forum-mode-label {
+            display: block;
+            padding: 20px 15px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .forum-mode-option input:checked + .forum-mode-label {
+            border-color: var(--primary);
+            background: rgba(88, 101, 242, 0.2);
+            box-shadow: 0 4px 12px rgba(88, 101, 242, 0.2);
+        }
+        
+        .forum-mode-label:hover {
+            background: rgba(88, 101, 242, 0.1);
+        }
+        
+        .forum-mode-icon {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .forum-mode-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            font-size: 1.1rem;
+        }
+        
+        .forum-mode-desc {
+            font-size: 0.8rem;
+            color: var(--gray);
+            line-height: 1.4;
+        }
+        
+        .thread-name-input {
+            margin-top: 15px;
+        }
+        
+        .username-info {
+            font-size: 0.8rem;
+            color: var(--gray);
+            margin-top: 5px;
+            font-style: italic;
+        }
+        
+        /* Стили для Embed */
+        .embed-section {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid var(--primary);
+        }
+        
+        .embed-section h3 {
+            color: var(--primary);
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .field-input {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 10px;
+            align-items: center;
+        }
+        
+        .field-input input {
+            flex: 1;
+        }
+        
+        .color-preview {
+            width: 40px;
+            height: 40px;
+            border-radius: 6px;
+            border: 2px solid rgba(255, 255, 255, 0.2);
+            cursor: pointer;
+        }
+        
+        .color-input-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .color-input-container input {
+            flex: 1;
+        }
+        
+        .embed-preview {
+            background: #2F3136;
+            border-radius: 8px;
+            padding: 15px;
+            margin-top: 15px;
+            border-left: 4px solid #5865F2;
+        }
+        
+        .embed-preview-title {
+            font-weight: bold;
+            color: white;
+            margin-bottom: 8px;
+            font-size: 16px;
+        }
+        
+        .embed-preview-description {
+            color: #DCDDDE;
+            margin-bottom: 10px;
+            font-size: 14px;
+        }
+        
+        .embed-preview-field {
+            margin-bottom: 8px;
+        }
+        
+        .embed-preview-field-name {
+            font-weight: bold;
+            color: white;
+            font-size: 14px;
+        }
+        
+        .embed-preview-field-value {
+            color: #DCDDDE;
+            font-size: 14px;
+            margin-left: 5px;
+        }
+        
+        .embed-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 15px;
+            cursor: pointer;
+            padding: 10px;
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 6px;
+        }
+        
+        .embed-toggle input {
+            width: auto;
+        }
+        
+        .embed-add-button {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 16px 30px;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+            width: auto;
+        }
+        
+        .embed-add-button:hover {
+            background: var(--primary-dark);
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.2);
+        }
+        
+        .embed-add-button:active {
+            transform: translateY(0);
+        }
+        
+        .embed-add-icon {
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1;
+        }
+        
+        .embed-add-text {
+            font-weight: 500;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        @keyframes slideDown {
+            from { 
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to { 
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .container {
+                padding: 10px;
+            }
+            
+            h1 {
+                font-size: 2rem;
+            }
+            
+            .card {
+                padding: 20px;
+            }
+            
+            .saved-webhooks {
+                flex-direction: column;
+            }
+            
+            .webhook-item {
+                flex: 1 1 100%;
+            }
+            
+            .modal-content {
+                padding: 20px;
+                margin: 20px;
+            }
+            
+            .mode-toggle {
+                flex-direction: column;
+            }
+            
+            .forum-mode-selector {
+                flex-direction: column;
+            }
+            
+            .button-input {
+                flex-direction: column;
+            }
+            
+            .field-input {
+                flex-direction: column;
+            }
+        }
+    </style>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1><i class="fab fa-discord"></i> Discord Message Creator</h1>
+            <p class="subtitle">Создавайте красивые сообщения для Discord</p>
+        </header>
+        
+        <div class="card">
+            <h2><i class="fas fa-paper-plane"></i> Создать сообщение</h2>
+            
+            <!-- Кнопка добавления эмбеда -->
+            <button class="embed-add-button" id="addEmbedBtn">
+                <div class="embed-add-icon">+</div>
+                <span class="embed-add-text">Добавить Embed</span>
+            </button>
+            
+            <div class="webhook-manager">
+                <div class="form-group">
+                    <label for="webhookUrl"><i class="fas fa-link"></i> Webhook URL:</label>
+                    <input type="url" id="webhookUrl" placeholder="https://discord.com/api/webhooks/..." required>
+                </div>
+                
+                <div class="form-group">
+                    <label><i class="fas fa-save"></i> Сохраненные вебхуки:</label>
+                    <div class="saved-webhooks" id="savedWebhooks">
+                        <!-- Сохраненные вебхуки появятся здесь -->
+                    </div>
+                    <button type="button" class="add-btn" id="saveWebhookBtn" style="margin-top: 10px;">
+                        <i class="fas fa-plus"></i> Сохранить вебхук
+                    </button>
+                </div>
+            </div>
+            
+            <div class="mode-selector">
+                <div class="mode-toggle">
+                    <div class="mode-option">
+                        <input type="radio" id="modeChat" name="modeType" value="chat" checked>
+                        <label for="modeChat" class="mode-label">
+                            <div class="mode-icon">
+                                <i class="fas fa-comment"></i>
+                            </div>
+                            <div class="mode-title">Чат</div>
+                            <div class="mode-desc">Обычный канал</div>
+                        </label>
+                    </div>
+                    
+                    <div class="mode-option">
+                        <input type="radio" id="modeForum" name="modeType" value="forum">
+                        <label for="modeForum" class="mode-label">
+                            <div class="mode-icon">
+                                <i class="fas fa-comments"></i>
+                            </div>
+                            <div class="mode-title">Форум</div>
+                            <div class="mode-desc">Форумный канал</div>
+                        </label>
+                    </div>
+                </div>
+                
+                <div class="forum-content" id="forumContent">
+                    <div class="forum-info">
+                        <p><strong>Информация:</strong> Вебхук уже привязан к вашему форуму. Вы можете:</p>
+                        <ul>
+                            <li>Отправить сообщение в существующую тему (укажите ID темы)</li>
+                            <li>Создать новую тему (укажите название темы)</li>
+                            <li>Отправить в основную ветку форума (оставьте поля пустыми)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="forum-mode-selector">
+                        <div class="forum-mode-option">
+                            <input type="radio" id="forumExisting" name="forumModeType" value="existing">
+                            <label for="forumExisting" class="forum-mode-label">
+                                <div class="forum-mode-icon">
+                                    <i class="fas fa-comments"></i>
+                                </div>
+                                <div class="forum-mode-title">Существующая тема</div>
+                                <div class="forum-mode-desc">Отправить в уже созданную тему</div>
+                            </label>
+                        </div>
+                        
+                        <div class="forum-mode-option">
+                            <input type="radio" id="forumNew" name="forumModeType" value="new">
+                            <label for="forumNew" class="forum-mode-label">
+                                <div class="forum-mode-icon">
+                                    <i class="fas fa-plus-circle"></i>
+                                </div>
+                                <div class="forum-mode-title">Новая тема</div>
+                                <div class="forum-mode-desc">Создать новую тему</div>
+                            </label>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group" id="threadIdGroup" style="display: none;">
+                        <label for="threadId"><i class="fas fa-hashtag"></i> ID существующей темы:</label>
+                        <input type="text" id="threadId" placeholder="Введите ID темы">
+                    </div>
+                    
+                    <div class="form-group thread-name-input" id="threadNameGroup" style="display: none;">
+                        <label for="threadName"><i class="fas fa-heading"></i> Название новой темы:</label>
+                        <input type="text" id="threadName" placeholder="Введите название темы">
+                    </div>
+                </div>
+            </div>
+            
+            <form id="discordForm">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="username"><i class="fas fa-user"></i> Имя отправителя:</label>
+                        <input type="text" id="username" placeholder="Оставьте пустым для стандартного имени вебхука">
+                        <div class="username-info">Если оставить пустым, будет использовано стандартное имя вебхука</div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label for="avatarUrl"><i class="fas fa-image"></i> URL аватара:</label>
+                        <input type="url" id="avatarUrl" placeholder="https://example.com/avatar.png">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="message"><i class="fas fa-comment"></i> Сообщение:</label>
+                    <textarea id="message" placeholder="Введите ваше сообщение..."></textarea>
+                </div>
+                
+                <!-- Секция Embed -->
+                <div class="embed-section">
+                    <div class="embed-toggle">
+                        <input type="checkbox" id="enableEmbed">
+                        <label for="enableEmbed"><strong>Добавить Embed</strong></label>
+                    </div>
+                    
+                    <div id="embedContent" style="display: none;">
+                        <div class="form-group">
+                            <label for="embedTitle"><i class="fas fa-heading"></i> Заголовок Embed:</label>
+                            <input type="text" id="embedTitle" placeholder="Введите заголовок">
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="embedDescription"><i class="fas fa-align-left"></i> Описание Embed:</label>
+                            <textarea id="embedDescription" placeholder="Введите описание" rows="3"></textarea>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label for="embedColor"><i class="fas fa-palette"></i> Цвет Embed:</label>
+                            <div class="color-input-container">
+                                <input type="text" id="embedColor" placeholder="#5865F2" value="#5865F2">
+                                <div class="color-preview" id="colorPreview" style="background-color: #5865F2;"></div>
+                            </div>
+                        </div>
+                        
+                        <div class="form-group">
+                            <label><i class="fas fa-list"></i> Поля Embed:</label>
+                            <div id="fieldsContainer">
+                                <!-- Поля будут добавляться здесь -->
+                            </div>
+                            <button type="button" class="add-btn" id="addFieldBtn">
+                                <i class="fas fa-plus"></i> Добавить поле
+                            </button>
+                        </div>
+                        
+                        <div class="embed-preview" id="embedPreview">
+                            <div class="embed-preview-title" id="previewTitle">Заголовок Embed</div>
+                            <div class="embed-preview-description" id="previewDescription">Описание embed будет отображаться здесь</div>
+                            <div id="previewFields">
+                                <div class="embed-preview-field">
+                                    <span class="embed-preview-field-name">Пример поля:</span>
+                                    <span class="embed-preview-field-value">Значение поля</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="imagePosition"><i class="fas fa-image"></i> Позиция изображения:</label>
+                    <select id="imagePosition">
+                        <option value="top">Сверху сообщения</option>
+                        <option value="bottom">Снизу сообщения</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="imageUrl"><i class="fas fa-link"></i> URL изображения:</label>
+                    <input type="url" id="imageUrl" placeholder="https://example.com/image.png">
+                    <img id="imagePreview" class="image-preview" alt="Предпросмотр изображения">
+                </div>
+                
+                <button type="submit">
+                    <i class="fas fa-paper-plane"></i> Отправить сообщение
+                </button>
+            </form>
+            
+            <div id="responseMessage" class="message"></div>
+        </div>
+        
+        <div class="card history">
+            <h2><i class="fas fa-history"></i> История отправки</h2>
+            <div id="historyContainer">
+                <!-- История будет добавляться сюда -->
+            </div>
+            <button class="clear-history" id="clearHistory">
+                <i class="fas fa-trash"></i> Очистить историю
+            </button>
+        </div>
+    </div>
+    
+    <!-- Модальные окна -->
+    <div class="modal" id="webhookModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title"><i class="fas fa-plus"></i> Сохранить вебхук</h3>
+                <button class="close-modal" id="closeModal">&times;</button>
+            </div>
+            
+            <div class="form-group">
+                <label for="webhookName">Название вебхука:</label>
+                <input type="text" id="webhookName" placeholder="Например: Основной канал">
+            </div>
+            
+            <div class="form-group">
+                <label for="webhookChannel">Канал (для информации):</label>
+                <input type="text" id="webhookChannel" placeholder="Например: #общий">
+            </div>
+            
+            <div class="form-group">
+                <label for="modalWebhookUrl">Webhook URL:</label>
+                <input type="url" id="modalWebhookUrl" placeholder="https://discord.com/api/webhooks/...">
+            </div>
+            
+            <div class="modal-actions">
+                <button class="cancel-btn" id="cancelModal">
+                    <i class="fas fa-times"></i> Отмена
+                </button>
+                <button id="saveModalWebhook">
+                    <i class="fas fa-save"></i> Сохранить
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="deleteConfirmModal">
+        <div class="modal-content confirm-modal-content">
+            <div class="confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="modal-title">Удалить вебхук?</h3>
+            <div class="confirm-text">
+                Вы уверены, что хотите удалить вебхук "<span class="webhook-name-to-delete" id="webhookNameToDelete"></span>"?
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-btn" id="cancelDelete">
+                    <i class="fas fa-times"></i> Отмена
+                </button>
+                <button class="delete-confirm-btn" id="confirmDelete">
+                    <i class="fas fa-trash"></i> Удалить
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="modal" id="clearHistoryConfirmModal">
+        <div class="modal-content confirm-modal-content">
+            <div class="confirm-icon">
+                <i class="fas fa-exclamation-triangle"></i>
+            </div>
+            <h3 class="modal-title">Очистить историю?</h3>
+            <div class="confirm-text">
+                Вы уверены, что хотите полностью очистить историю отправки? Это действие нельзя отменить.
+            </div>
+            <div class="modal-actions">
+                <button class="cancel-btn" id="cancelClearHistory">
+                    <i class="fas fa-times"></i> Отмена
+                </button>
+                <button class="delete-confirm-btn" id="confirmClearHistory">
+                    <i class="fas fa-trash"></i> Очистить
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="footer">
+        <p>Создано для удобной отправки сообщений через Discord Webhook</p>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const form = document.getElementById('discordForm');
+            const responseMessage = document.getElementById('responseMessage');
+            const historyContainer = document.getElementById('historyContainer');
+            const clearHistoryBtn = document.getElementById('clearHistory');
+            const imageUrlInput = document.getElementById('imageUrl');
+            const imagePreview = document.getElementById('imagePreview');
+            const saveWebhookBtn = document.getElementById('saveWebhookBtn');
+            const savedWebhooksContainer = document.getElementById('savedWebhooks');
+            const webhookUrlInput = document.getElementById('webhookUrl');
+            const usernameInput = document.getElementById('username');
+            const addEmbedBtn = document.getElementById('addEmbedBtn');
+            
+            // Элементы Embed
+            const enableEmbed = document.getElementById('enableEmbed');
+            const embedContent = document.getElementById('embedContent');
+            const embedTitle = document.getElementById('embedTitle');
+            const embedDescription = document.getElementById('embedDescription');
+            const embedColor = document.getElementById('embedColor');
+            const colorPreview = document.getElementById('colorPreview');
+            const addFieldBtn = document.getElementById('addFieldBtn');
+            const fieldsContainer = document.getElementById('fieldsContainer');
+            const embedPreview = document.getElementById('embedPreview');
+            const previewTitle = document.getElementById('previewTitle');
+            const previewDescription = document.getElementById('previewDescription');
+            const previewFields = document.getElementById('previewFields');
+            
+            // Элементы модальных окон
+            const webhookModal = document.getElementById('webhookModal');
+            const deleteConfirmModal = document.getElementById('deleteConfirmModal');
+            const clearHistoryConfirmModal = document.getElementById('clearHistoryConfirmModal');
+            const closeModalBtn = document.getElementById('closeModal');
+            const cancelModalBtn = document.getElementById('cancelModal');
+            const saveModalWebhookBtn = document.getElementById('saveModalWebhook');
+            const webhookNameInput = document.getElementById('webhookName');
+            const webhookChannelInput = document.getElementById('webhookChannel');
+            const modalWebhookUrlInput = document.getElementById('modalWebhookUrl');
+            
+            // Элементы модального окна удаления
+            const cancelDeleteBtn = document.getElementById('cancelDelete');
+            const confirmDeleteBtn = document.getElementById('confirmDelete');
+            const webhookNameToDelete = document.getElementById('webhookNameToDelete');
+            
+            // Элементы модального окна очистки истории
+            const cancelClearHistoryBtn = document.getElementById('cancelClearHistory');
+            const confirmClearHistoryBtn = document.getElementById('confirmClearHistory');
+            
+            // Элементы выбора режима
+            const modeChatRadio = document.getElementById('modeChat');
+            const modeForumRadio = document.getElementById('modeForum');
+            const forumContent = document.getElementById('forumContent');
+            const forumExistingRadio = document.getElementById('forumExisting');
+            const forumNewRadio = document.getElementById('forumNew');
+            const threadIdGroup = document.getElementById('threadIdGroup');
+            const threadIdInput = document.getElementById('threadId');
+            const threadNameGroup = document.getElementById('threadNameGroup');
+            const threadNameInput = document.getElementById('threadName');
+
+            let fieldCount = 0;
+            let currentWebhookId = null;
+            let webhookToDeleteId = null;
+            
+            // Загрузка истории и сохраненных вебхуков
+            loadHistory();
+            loadSavedWebhooks();
+            
+            // Кнопка добавления эмбеда
+            addEmbedBtn.addEventListener('click', function() {
+                enableEmbed.checked = true;
+                embedContent.style.display = 'block';
+                updateEmbedPreview();
+            });
+            
+            // Переключение Embed
+            enableEmbed.addEventListener('change', function() {
+                embedContent.style.display = this.checked ? 'block' : 'none';
+                updateEmbedPreview();
+            });
+            
+            // Обновление цвета Embed
+            embedColor.addEventListener('input', function() {
+                const color = this.value || '#5865F2';
+                colorPreview.style.backgroundColor = color;
+                embedPreview.style.borderLeftColor = color;
+                updateEmbedPreview();
+            });
+            
+            // Обновление предпросмотра Embed
+            function updateEmbedPreview() {
+                previewTitle.textContent = embedTitle.value || 'Заголовок Embed';
+                previewDescription.textContent = embedDescription.value || 'Описание embed будет отображаться здесь';
+                
+                // Обновляем поля
+                previewFields.innerHTML = '';
+                const fieldInputs = fieldsContainer.querySelectorAll('.field-input');
+                fieldInputs.forEach(fieldDiv => {
+                    const name = fieldDiv.querySelector('.field-name').value;
+                    const value = fieldDiv.querySelector('.field-value').value;
+                    
+                    if (name || value) {
+                        const fieldElement = document.createElement('div');
+                        fieldElement.className = 'embed-preview-field';
+                        fieldElement.innerHTML = `
+                            <span class="embed-preview-field-name">${name || 'Имя поля'}:</span>
+                            <span class="embed-preview-field-value">${value || 'Значение поля'}</span>
+                        `;
+                        previewFields.appendChild(fieldElement);
+                    }
+                });
+                
+                // Если нет полей, показываем пример
+                if (previewFields.children.length === 0) {
+                    previewFields.innerHTML = `
+                        <div class="embed-preview-field">
+                            <span class="embed-preview-field-name">Пример поля:</span>
+                            <span class="embed-preview-field-value">Значение поля</span>
+                        </div>
+                    `;
+                }
+            }
+            
+            // Добавление поля Embed
+            addFieldBtn.addEventListener('click', function() {
+                if (fieldCount >= 25) {
+                    alert('Максимум 25 полей можно добавить');
+                    return;
+                }
+                
+                fieldCount++;
+                const fieldDiv = document.createElement('div');
+                fieldDiv.className = 'field-input';
+                fieldDiv.innerHTML = `
+                    <input type="text" class="field-name" placeholder="Имя поля" style="flex: 1;">
+                    <input type="text" class="field-value" placeholder="Значение поля" style="flex: 2;">
+                    <button type="button" class="remove-btn"><i class="fas fa-times"></i></button>
+                `;
+                
+                fieldsContainer.appendChild(fieldDiv);
+                
+                // Обновление предпросмотра при изменении полей
+                fieldDiv.querySelector('.field-name').addEventListener('input', updateEmbedPreview);
+                fieldDiv.querySelector('.field-value').addEventListener('input', updateEmbedPreview);
+                
+                // Удаление поля
+                fieldDiv.querySelector('.remove-btn').addEventListener('click', function() {
+                    fieldsContainer.removeChild(fieldDiv);
+                    fieldCount--;
+                    updateEmbedPreview();
+                });
+                
+                updateEmbedPreview();
+            });
+            
+            // Обновление предпросмотра при изменении заголовка и описания
+            embedTitle.addEventListener('input', updateEmbedPreview);
+            embedDescription.addEventListener('input', updateEmbedPreview);
+            
+            // Переключение между режимами Чат/Форум
+            modeChatRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    forumContent.classList.remove('active');
+                }
+            });
+
+            modeForumRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    forumContent.classList.add('active');
+                }
+            });
+
+            // Переключение между режимами существующей и новой темы
+            forumExistingRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    threadIdGroup.style.display = 'block';
+                    threadNameGroup.style.display = 'none';
+                }
+            });
+
+            forumNewRadio.addEventListener('change', function() {
+                if (this.checked) {
+                    threadIdGroup.style.display = 'none';
+                    threadNameGroup.style.display = 'block';
+                }
+            });
+            
+            // Открытие модального окна добавления вебхука
+            saveWebhookBtn.addEventListener('click', function() {
+                // Заполняем URL из основного поля, если он есть
+                if (webhookUrlInput.value) {
+                    modalWebhookUrlInput.value = webhookUrlInput.value;
+                }
+                
+                // Очищаем остальные поля
+                webhookNameInput.value = '';
+                webhookChannelInput.value = '';
+                
+                webhookModal.style.display = 'flex';
+            });
+            
+            // Закрытие модальных окон
+            closeModalBtn.addEventListener('click', closeModals);
+            cancelModalBtn.addEventListener('click', closeModals);
+            cancelDeleteBtn.addEventListener('click', closeModals);
+            cancelClearHistoryBtn.addEventListener('click', closeModals);
+            
+            // Закрытие модальных окон при клике вне их
+            webhookModal.addEventListener('click', function(e) {
+                if (e.target === webhookModal) {
+                    closeModals();
+                }
+            });
+            
+            deleteConfirmModal.addEventListener('click', function(e) {
+                if (e.target === deleteConfirmModal) {
+                    closeModals();
+                }
+            });
+            
+            clearHistoryConfirmModal.addEventListener('click', function(e) {
+                if (e.target === clearHistoryConfirmModal) {
+                    closeModals();
+                }
+            });
+            
+            // Сохранение вебхука из модального окна
+            saveModalWebhookBtn.addEventListener('click', function() {
+                const name = webhookNameInput.value.trim();
+                const channel = webhookChannelInput.value.trim();
+                const url = modalWebhookUrlInput.value.trim();
+                
+                if (!name) {
+                    alert('Введите название для вебхука');
+                    return;
+                }
+                
+                if (!url) {
+                    alert('Введите URL вебхука');
+                    return;
+                }
+                
+                saveWebhook(url, name, channel || 'Не указан');
+                closeModals();
+                
+                // Обновляем основное поле URL
+                webhookUrlInput.value = url;
+            });
+            
+            // Подтверждение удаления вебхука
+            confirmDeleteBtn.addEventListener('click', function() {
+                if (webhookToDeleteId) {
+                    deleteWebhook(webhookToDeleteId);
+                    webhookToDeleteId = null;
+                    closeModals();
+                }
+            });
+            
+            // Подтверждение очистки истории
+            confirmClearHistoryBtn.addEventListener('click', function() {
+                localStorage.removeItem('discordWebhookHistory');
+                loadHistory();
+                closeModals();
+            });
+            
+            // Предпросмотр изображения
+            imageUrlInput.addEventListener('input', function() {
+                if (this.value) {
+                    imagePreview.src = this.value;
+                    imagePreview.style.display = 'block';
+                } else {
+                    imagePreview.style.display = 'none';
+                }
+            });
+            
+            // Отправка формы
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const webhookUrl = webhookUrlInput.value;
+                const username = usernameInput.value.trim();
+                const avatarUrl = document.getElementById('avatarUrl').value;
+                const message = document.getElementById('message').value;
+                const imageUrl = document.getElementById('imageUrl').value;
+                const imagePosition = document.getElementById('imagePosition').value;
+                const forumMode = modeForumRadio.checked;
+                const threadId = threadIdInput.value;
+                const threadName = threadNameInput.value;
+                const forumModeType = document.querySelector('input[name="forumModeType"]:checked')?.value;
+
+                // Проверка для форумного режима
+                if (forumMode) {
+                    if (forumModeType === 'new' && !threadName) {
+                        responseMessage.textContent = 'Для создания новой темы необходимо указать название';
+                        responseMessage.className = 'message error';
+                        responseMessage.style.display = 'block';
+                        return;
+                    }
+                    
+                    if (forumModeType === 'existing' && !threadId) {
+                        responseMessage.textContent = 'Для отправки в существующую тему необходимо указать ID темы';
+                        responseMessage.className = 'message error';
+                        responseMessage.style.display = 'block';
+                        return;
+                    }
+                }
+                
+                // Создаем объект с данными для отправки
+                const payload = {
+                    content: message
+                };
+                
+                // Добавляем имя пользователя только если оно указано
+                if (username) {
+                    payload.username = username;
+                }
+                
+                // Добавляем аватар, если указан
+                if (avatarUrl) {
+                    payload.avatar_url = avatarUrl;
+                }
+                
+                // Добавляем Embed если включен
+                if (enableEmbed.checked) {
+                    const embedTitleValue = embedTitle.value.trim();
+                    const embedDescriptionValue = embedDescription.value.trim();
+                    const embedColorValue = embedColor.value.trim();
+                    
+                    if (embedTitleValue || embedDescriptionValue) {
+                        payload.embeds = [{
+                            title: embedTitleValue || undefined,
+                            description: embedDescriptionValue || undefined,
+                            color: embedColorValue ? parseInt(embedColorValue.replace('#', ''), 16) : undefined,
+                            fields: []
+                        }];
+                        
+                        // Добавляем поля
+                        const fieldInputs = fieldsContainer.querySelectorAll('.field-input');
+                        fieldInputs.forEach(fieldDiv => {
+                            const name = fieldDiv.querySelector('.field-name').value.trim();
+                            const value = fieldDiv.querySelector('.field-value').value.trim();
+                            
+                            if (name && value) {
+                                payload.embeds[0].fields.push({
+                                    name: name,
+                                    value: value,
+                                    inline: false
+                                });
+                            }
+                        });
+                    }
+                }
+                
+                // Добавляем изображение, если указано
+                if (imageUrl) {
+                    if (!payload.embeds) payload.embeds = [];
+                    
+                    if (imagePosition === 'top') {
+                        // Добавляем embed с изображением
+                        payload.embeds.unshift({
+                            image: { url: imageUrl }
+                        });
+                    } else {
+                        // Добавляем изображение в конец
+                        if (payload.embeds.length > 0) {
+                            payload.embeds[payload.embeds.length - 1].image = { url: imageUrl };
+                        } else {
+                            payload.embeds.push({
+                                image: { url: imageUrl }
+                            });
+                        }
+                    }
+                }
+                
+                // Определяем URL для отправки
+                let sendUrl = webhookUrl;
+                
+                // Если включен режим форума
+                if (forumMode) {
+                    // Если выбрана существующая тема
+                    if (forumModeType === 'existing' && threadId) {
+                        sendUrl = `${webhookUrl}?thread_id=${threadId}`;
+                    } 
+                    // Если создаем новую тему
+                    else if (forumModeType === 'new' && threadName) {
+                        payload.thread_name = threadName;
+                    }
+                }
+                
+                // Показываем индикатор загрузки и отправляем запрос
+                const submitBtn = form.querySelector('button[type="submit"]');
+                const originalText = submitBtn.innerHTML;
+                submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Отправка...';
+                submitBtn.disabled = true;
+                
+                fetch(sendUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify(payload),
+                })
+                .then(response => {
+                    if (response.ok) {
+                        let successMessage = 'Сообщение успешно отправлено!';
+                        if (forumMode) {
+                            if (forumModeType === 'new') {
+                                successMessage += ' (создана новая тема)';
+                            } else if (forumModeType === 'existing') {
+                                successMessage += ' (в существующую тему)';
+                            } else {
+                                successMessage += ' (в форум)';
+                            }
+                        }
+                        
+                        if (enableEmbed.checked) {
+                            successMessage += ' (с Embed)';
+                        }
+                        
+                        // Показываем какое имя использовалось
+                        if (!username) {
+                            successMessage += ' (использовано стандартное имя вебхука)';
+                        }
+                        
+                        responseMessage.textContent = successMessage;
+                        responseMessage.className = 'message success';
+                        responseMessage.style.display = 'block';
+                        
+                        // Сохраняем в историю
+                        saveToHistory(webhookUrl, username || 'Стандартное имя вебхука', message, forumMode);
+                        
+                        // Очищаем поля
+                        document.getElementById('message').value = '';
+                        document.getElementById('imageUrl').value = '';
+                        imagePreview.style.display = 'none';
+                        
+                        // Очищаем Embed поля
+                        enableEmbed.checked = false;
+                        embedContent.style.display = 'none';
+                        embedTitle.value = '';
+                        embedDescription.value = '';
+                        embedColor.value = '#5865F2';
+                        colorPreview.style.backgroundColor = '#5865F2';
+                        fieldsContainer.innerHTML = '';
+                        fieldCount = 0;
+                        updateEmbedPreview();
+                        
+                        // Сбрасываем настройки форума
+                        if (forumModeType === 'new') {
+                            threadNameInput.value = '';
+                        }
+                    } else {
+                        throw new Error(`Ошибка ${response.status}: ${response.statusText}`);
+                    }
+                })
+                .catch(error => {
+                    responseMessage.textContent = 'Ошибка: ' + error.message;
+                    responseMessage.className = 'message error';
+                    responseMessage.style.display = 'block';
+                })
+                .finally(() => {
+                    // Восстанавливаем кнопку
+                    submitBtn.innerHTML = originalText;
+                    submitBtn.disabled = false;
+                    
+                    // Скрываем сообщение через 5 секунд
+                    setTimeout(() => {
+                        responseMessage.style.display = 'none';
+                    }, 5000);
+                });
+            });
+            
+            // Функция закрытия всех модальных окон
+            function closeModals() {
+                webhookModal.style.display = 'none';
+                deleteConfirmModal.style.display = 'none';
+                clearHistoryConfirmModal.style.display = 'none';
+            }
+            
+            // Функция сохранения вебхука
+            function saveWebhook(url, name, channel) {
+                const webhook = {
+                    id: Date.now().toString(),
+                    url: url,
+                    name: name,
+                    channel: channel,
+                    date: new Date().toLocaleString('ru-RU')
+                };
+                
+                let webhooks = JSON.parse(localStorage.getItem('discordWebhooks') || '[]');
+                
+                // Проверяем, нет ли уже вебхука с таким URL
+                const existingIndex = webhooks.findIndex(w => w.url === url);
+                if (existingIndex !== -1) {
+                    webhooks[existingIndex] = webhook;
+                } else {
+                    webhooks.push(webhook);
+                }
+                
+                localStorage.setItem('discordWebhooks', JSON.stringify(webhooks));
+                loadSavedWebhooks();
+                
+                // Выбираем сохраненный вебхук
+                selectWebhook(webhook.id);
+            }
+            
+            // Функция загрузки сохраненных вебхуков
+            function loadSavedWebhooks() {
+                const webhooks = JSON.parse(localStorage.getItem('discordWebhooks') || '[]');
+                savedWebhooksContainer.innerHTML = '';
+                
+                if (webhooks.length === 0) {
+                    savedWebhooksContainer.innerHTML = '<p style="color: var(--gray); text-align: center;">Нет сохраненных вебхуков</p>';
+                    return;
+                }
+                
+                webhooks.forEach(webhook => {
+                    const webhookElement = document.createElement('div');
+                    webhookElement.className = 'webhook-item';
+                    if (webhook.id === currentWebhookId) {
+                        webhookElement.classList.add('active');
+                    }
+                    webhookElement.innerHTML = `
+                        <div class="webhook-name">${escapeHtml(webhook.name)}</div>
+                        <div class="webhook-channel">${escapeHtml(webhook.channel)}</div>
+                        <div class="webhook-date">${webhook.date}</div>
+                        <div class="webhook-actions">
+                            <button class="delete-webhook" data-id="${webhook.id}" title="Удалить вебхук">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </div>
+                    `;
+                    
+                    webhookElement.addEventListener('click', function(e) {
+                        if (!e.target.closest('.webhook-actions')) {
+                            selectWebhook(webhook.id);
+                        }
+                    });
+                    
+                    // Удаление вебхука
+                    const deleteBtn = webhookElement.querySelector('.delete-webhook');
+                    deleteBtn.addEventListener('click', function(e) {
+                        e.stopPropagation();
+                        showDeleteConfirm(webhook.id, webhook.name);
+                    });
+                    
+                    savedWebhooksContainer.appendChild(webhookElement);
+                });
+            }
+            
+            // Функция показа модального окна подтверждения удаления
+            function showDeleteConfirm(id, name) {
+                webhookToDeleteId = id;
+                webhookNameToDelete.textContent = name;
+                deleteConfirmModal.style.display = 'flex';
+            }
+            
+            // Функция удаления вебхука
+            function deleteWebhook(id) {
+                let webhooks = JSON.parse(localStorage.getItem('discordWebhooks') || '[]');
+                webhooks = webhooks.filter(w => w.id !== id);
+                localStorage.setItem('discordWebhooks', JSON.stringify(webhooks));
+                loadSavedWebhooks();
+                
+                if (currentWebhookId === id) {
+                    currentWebhookId = null;
+                    webhookUrlInput.value = '';
+                }
+            }
+            
+            // Функция выбора вебхука
+            function selectWebhook(id) {
+                const webhooks = JSON.parse(localStorage.getItem('discordWebhooks') || '[]');
+                const webhook = webhooks.find(w => w.id === id);
+                
+                if (webhook) {
+                    webhookUrlInput.value = webhook.url;
+                    currentWebhookId = id;
+                    loadSavedWebhooks();
+                }
+            }
+            
+            // Функция сохранения в историю
+            function saveToHistory(webhookUrl, username, message, forumMode) {
+                const historyItem = {
+                    webhookUrl: webhookUrl,
+                    username: username,
+                    message: message,
+                    forumMode: forumMode,
+                    date: new Date().toLocaleString('ru-RU')
+                };
+                
+                let history = JSON.parse(localStorage.getItem('discordWebhookHistory') || '[]');
+                history.unshift(historyItem);
+                
+                // Ограничиваем историю 10 последними записями
+                if (history.length > 10) {
+                    history = history.slice(0, 10);
+                }
+                
+                localStorage.setItem('discordWebhookHistory', JSON.stringify(history));
+                loadHistory();
+            }
+            
+            // Функция загрузки истории
+            function loadHistory() {
+                const history = JSON.parse(localStorage.getItem('discordWebhookHistory') || '[]');
+                historyContainer.innerHTML = '';
+                
+                if (history.length === 0) {
+                    historyContainer.innerHTML = '<p style="text-align: center; color: var(--gray);">История отправки пуста</p>';
+                    return;
+                }
+                
+                history.forEach(item => {
+                    const historyElement = document.createElement('div');
+                    historyElement.className = 'history-item';
+                    historyElement.innerHTML = `
+                        <div class="history-header">
+                            <span class="history-username">${escapeHtml(item.username)}</span>
+                            <span class="history-date">${item.date} ${item.forumMode ? '(Форум)' : ''}</span>
+                        </div>
+                        <div class="history-message">${escapeHtml(item.message)}</div>
+                    `;
+                    historyContainer.appendChild(historyElement);
+                });
+            }
+            
+            // Функция очистки истории (теперь с модальным окном подтверждения)
+            clearHistoryBtn.addEventListener('click', function() {
+                clearHistoryConfirmModal.style.display = 'flex';
+            });
+            
+            // Функция экранирования HTML
+            function escapeHtml(text) {
+                const div = document.createElement('div');
+                div.textContent = text;
+                return div.innerHTML;
+            }
+        });
+    </script>
+</body>
+</html>
